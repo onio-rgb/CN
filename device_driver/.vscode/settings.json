@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.cpp": "cpp",
+        "kernel.h": "c",
+        "module.h": "c"
+    }
+}

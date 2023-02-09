@@ -16,10 +16,6 @@ int main()
     semop(sem_id12, _semop, 1);
     printf(" I got semaphore S12 signalling from P1\n");
 
-    printf(" Enter any character to sem-signal( S23)\n");
-    char c;
-    scanf("%c", &c);
-    printf(" I am signalling semaphore signal of S23\n");
     // creating s23
     key_t key23 = ftok("./sem/s23", 23);
     int sem_id23 = semget(key23, 1, 0666 | IPC_CREAT);
@@ -28,5 +24,9 @@ int main()
     _semop->sem_num = 0;
     _semop->sem_op = 1;
     // signal s23
+    printf(" Enter any character to sem-signal( S23)\n");
+    char c;
+    scanf("%c", &c);
+    printf(" I am signalling semaphore signal of S23\n");
     semop(sem_id23, _semop, 1);
 }

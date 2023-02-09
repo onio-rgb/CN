@@ -14,12 +14,6 @@ struct msgbuf
 };
 int left = -1, right = -1;
 int self_pid;
-void handler(int sig, siginfo_t *info, void *ucontext)
-{
-    left = info->si_pid;
-    send_pid_msgq(self_pid,18);
-    return;
-}
 int msgid;
 void send_pid_msgq(int _pid,int type)
 {
@@ -36,6 +30,12 @@ void send_pid_msgq(int _pid,int type)
     char *pid_string;
     sprintf(_msgToP2.mtext, "p3%d", pid);
     int rvalue = msgsnd(msgid, &_msgToP2, sizeof(_msgToP2.mtext), 0);
+}
+void handler(int sig, siginfo_t *info, void *ucontext)
+{
+    left = info->si_pid;
+    send_pid_msgq(self_pid,18);
+    return;
 }
 void signal_handler_connection()
 {

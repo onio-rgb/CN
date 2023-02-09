@@ -13,6 +13,23 @@ struct msgbuf
 };
 int left = -1, right = -1;
 int self_pid;
+int msgid;
+void send_pid_msgq(int _pid,int type)
+{
+    key_t key = ftok("/tmp/Q", 100);
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    if (msgid == -1)
+    {
+        printf("message queue not created\n");
+        exit(1);
+    }
+    struct msgbuf _msgToP2;
+    _msgToP2.mtype = type;
+    int pid = _pid;
+    char *pid_string;
+    sprintf(_msgToP2.mtext, "p4%d", pid);
+    int rvalue = msgsnd(msgid, &_msgToP2, sizeof(_msgToP2.mtext), 0);
+}
 void handler(int sig, siginfo_t *info, void *ucontext)
 {
     left = info->si_pid;
@@ -29,23 +46,6 @@ void signal_handler_connection()
         printf("Sigaction p4\n");
         exit(1);
     }
-}
-int msgid;
-void send_pid_msgq(int pid,int type)
-{
-    key_t key = ftok("/tmp/Q", 100);
-    msgid = msgget(key, 0666 | IPC_CREAT);
-    if (msgid == -1)
-    {
-        printf("message queue not created\n");
-        exit(1);
-    }
-    struct msgbuf _msgToP2;
-    _msgToP2.mtype = type;
-    int pid = pid;
-    char *pid_string;
-    sprintf(_msgToP2.mtext, "p4%d", pid);
-    int rvalue = msgsnd(msgid, &_msgToP2, sizeof(_msgToP2.mtext), 0);
 }
 void receive_msg_msgq()
 {

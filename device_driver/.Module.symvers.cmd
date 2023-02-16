@@ -1,0 +1,1 @@
+cmd_/home/onio/Documents/CN/device_driver/Module.symvers := sed 's/\.ko$$/\.o/' /home/onio/Documents/CN/device_driver/modules.order | scripts/mod/modpost -m -a  -o /home/onio/Documents/CN/device_driver/Module.symvers -e -i Module.symvers   -T -

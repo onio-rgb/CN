@@ -2,6 +2,12 @@
     "files.associations": {
         "*.cpp": "cpp",
         "kernel.h": "c",
-        "module.h": "c"
-    }
+        "module.h": "c",
+        "input.h": "c"
+    },
+    "C_Cpp.default.includePath": [
+        "/usr/src/linux-hwe-5.19-headers-5.19.0-32/arch/x86/include/",
+        "/usr/src/linux-hwe-5.19-headers-5.19.0-32/include/"
+    ],
+    "C_Cpp.errorSquiggles": "disabled"
 }

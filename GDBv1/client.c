@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include<string.h>
-#define FIFO "/tmp/read_cpp"
+#define FIFO "/home/onio/read_cpp"
 int main()
 {
     char *s=malloc(1024);

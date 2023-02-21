@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/wait.h>
-#define FIFO "/tmp/read_cpp"
+#define FIFO "/home/onio/read_cpp"
 int check()
 {
     FILE *correct_out=malloc(sizeof(FILE));
@@ -29,6 +29,7 @@ int check()
 }
 int main()
 {
+    unlink(FIFO);
     mkfifo(FIFO, 0666);
     int fd = open(FIFO, O_RDWR);
     system("touch P.cpp");
@@ -65,7 +66,7 @@ int main()
                 int stdin_cpy=dup(0);
                 dup2(infd, 0);
                 dup2(outfd, 1);
-                char *const dumm = malloc(1);
+                char *const dumm[1]={NULL};
                 execvp("./P.exe", dumm);
             }
         }

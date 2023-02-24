@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <poll.h>
-#include <signal.h>
-void handle_sigpipe()
-{
-    printf("Terminated a child\n");
-}
+
 int main()
 {
-    printf("%d\n",getpid());
     struct pollfd *poll_fds = malloc(sizeof(struct pollfd) * 4);
     FILE **fstreams = malloc(sizeof(FILE *) * 4);
     for (int i = 2; i <= 5; i++)
@@ -18,7 +13,6 @@ int main()
         sprintf(command, "./p%d", i);
         FILE *pipein_stream = popen(command, "r");
         fstreams[i - 2] = pipein_stream;
-        printf("%s\n", command);
         if (pipein_stream == NULL)
         {
             printf("Errpr popen p%d\n", i);
@@ -35,10 +29,7 @@ int main()
     // signal(SIGPIPE,handle_sigpipe);
     while (num_open_fds > 0 && it > 0)
     {
-        int ready = poll(poll_fds, 4, -1);
-        // printf("%d\n", ready);
-        // printf("%d\n",num_open_fds);
-        fflush(stdout);
+        int ready = poll(poll_fds, 4, 3000);
         if (ready == -1)
         {
             printf("poll\n");
@@ -56,13 +47,10 @@ int main()
             {
                 int stdin_cpy = dup(0);
                 int pipe_in_fd = poll_fds[i].fd;
-                printf("%d",pipe_in_fd);
                 dup2(pipe_in_fd, 0);
                 char buff[100];
-                printf("%d\n",fileno(stdin));
                 fflush(stdout);
                 scanf(" %[^\n]", buff);
-                printf("%ld\n",lseek(pipe_in_fd,0,SEEK_CUR));
                 
                 // writing to p6 from p2 p3 p4 p5
                 FILE *p6_stream = popen("./p6", "w");
@@ -85,7 +73,6 @@ int main()
         }
         num_open_fds-=ready;
     }
-    printf("Saadd\n");
     fflush(stdout);
     if (num_open_fds == 4)
     {

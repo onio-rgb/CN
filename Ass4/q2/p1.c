@@ -6,7 +6,7 @@
 #include <sys/msg.h>
 #include <sys/types.h>
 #include <signal.h>
-#include <wait.h>
+#include<signal.h>
 int self_pid;
 int left = -1;
 int right = -1;

@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -101,6 +102,6 @@ int main()
         exit(1);
     }
     
-    for(int i=0;i<3;i++)sleep(2);
-    for(int i=0;i<3;i++)sleep(2);
+    for(int i=0;i<3;i++)sleep(10);
+    for(int i=0;i<3;i++)sleep(10);
 }

@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,6 +27,7 @@ void signal_handler_connection()
     // find the pid of the sigusr1
     struct sigaction act;
     act.sa_flags = SA_SIGINFO;
+    
     act.sa_sigaction = &handler;
     if (sigaction(SIGUSR1, &act, NULL) == -1)
     {
@@ -91,6 +93,7 @@ int main()
         if (p3 > 0)
         {
             // p2 receives type=3 msg from queue to find right=p3
+            // if anything goeas wrong sleep for 1 sec here
             sleep(1);
             receive_msg_msgq_right();
             // p2 sends p1's pid to msgq
@@ -131,6 +134,6 @@ int main()
         exit(1);
     }
 
-    for(int i=0;i<3;i++)sleep(2);
-    for(int i=0;i<3;i++)sleep(2);
+    for(int i=0;i<3;i++)sleep(10);
+    for(int i=0;i<3;i++)sleep(10);
 }

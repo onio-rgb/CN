@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
+map<int, int> redundantBits;
 int getNumberOfBits(int m)
 {
     int r = 0;
@@ -19,14 +20,14 @@ vector<int> getBinary(long long int data)
     reverse(bin.begin(), bin.end());
     return bin;
 }
-int checkAndFixParity(vector<int> bin, int off,int size)
+int checkAndFixParity(vector<int> bin, int off, int size)
 {
     int n = bin.size();
     int count = 0;
     cout << off << " ";
-    for (int i = 0; i < size+1; i++)
+    for (int i = 0; i < size + 1; i++)
     {
-        if (((i >> off) & 1) == 1 && bin[i - 1] == 1)
+        if (((i >> off) & 1) == 1 && bin[i - 1] == 1 && redundantBits.count(i) == 0)
         {
             count++;
             cout << i << " ";
@@ -48,18 +49,22 @@ int main()
         cin >> i;
     int size = getNumberOfBits(m);
     int data_index = 0;
+    while (index <= size)
+        redundantBits[index] = 1, index *= 2;
+    index = 1;
     vector<int> dataWithRedundant(size);
     for (int i = 0; i < size; i++)
     {
-        if (i == (index - 1))
-        {
-            dataWithRedundant[i] = checkAndFixParity(bin, log2(index));
-            index *= 2;
-        }
-        else
-        {
+        if (i != (index - 1))
             dataWithRedundant[i] = bin[data_index++];
-        }
+        else
+            index *= 2;
+    }
+    index = 1;
+    while (index <= size)
+    {
+        dataWithRedundant[index - 1] = checkAndFixParity(dataWithRedundant, log2(index), size);
+        index *= 2;
     }
     for (int i : bin)
         cout << i << " ";

@@ -3,7 +3,8 @@
         "*.cpp": "cpp",
         "kernel.h": "c",
         "module.h": "c",
-        "input.h": "c"
+        "input.h": "c",
+        "device.h": "c"
     },
     "C_Cpp.default.includePath": [
         "/usr/src/linux-headers-5.19.0-35-generic/arch/x86/include/",

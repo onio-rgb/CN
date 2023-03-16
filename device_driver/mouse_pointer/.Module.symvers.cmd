@@ -1,0 +1,1 @@
+cmd_/home/onio/Documents/CN/device_driver/mouse_pointer/Module.symvers := sed 's/ko$$/o/' /home/onio/Documents/CN/device_driver/mouse_pointer/modules.order | scripts/mod/modpost -m -a  -o /home/onio/Documents/CN/device_driver/mouse_pointer/Module.symvers -e -i Module.symvers   -T -

@@ -4,11 +4,14 @@
         "kernel.h": "c",
         "module.h": "c",
         "input.h": "c",
-        "device.h": "c"
+        "device.h": "c",
+        "unistd.h": "c",
+        "socket.h": "c",
+        "string.h": "c"
     },
     "C_Cpp.default.includePath": [
         "/usr/src/linux-headers-5.19.0-35-generic/arch/x86/include/",
         "/usr/src/linux-headers-5.19.0-35-generic/include/"
     ],
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "enabled"
 }

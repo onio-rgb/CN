@@ -10,8 +10,8 @@
         "string.h": "c"
     },
     "C_Cpp.default.includePath": [
-        "/usr/src/linux-headers-5.19.0-35-generic/arch/x86/include/",
-        "/usr/src/linux-headers-5.19.0-35-generic/include/"
+        "/usr/src/linux-headers-6.2.0-76060200-generic/arch/x86/include/",
+        "/usr/src/linux-headers-6.2.0-76060200-generic/include/"
     ],
     "C_Cpp.errorSquiggles": "enabled"
 }

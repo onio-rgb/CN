@@ -100,6 +100,9 @@ int main()
     while (1)
     {
         int recvfd=recv_fd(nusfd);
+        int seq[50];
+        read(recvfd,seq,sizeof(int)*50);
+        printf("Sequence of compartments in train \n");
         
     }
 }

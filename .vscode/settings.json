@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.ejs": "html",
         "*.cpp": "cpp",
         "kernel.h": "c",
         "module.h": "c",
@@ -7,7 +8,9 @@
         "device.h": "c",
         "unistd.h": "c",
         "socket.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "un.h": "c",
+        "tcp": "c"
     },
     "C_Cpp.default.includePath": [
         "/usr/src/linux-headers-6.2.0-76060200-generic/arch/x86/include/",

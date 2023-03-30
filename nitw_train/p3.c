@@ -84,15 +84,14 @@ int main()
 
     key_t key = ftok("/tmp", 100);
     perror("");
-    int shm_id = shmget(key, 4096, 0666);
-    shmctl(shm_id,IPC_RMID,NULL);
-    shm_id = shmget(key, 4096, 0666 | IPC_CREAT);
+    int shm_id = shmget(key, 4096, 0666 | IPC_CREAT);
+    
     state = shmat(shm_id, NULL, 0);
 
     int usfd = socket(AF_UNIX, SOCK_STREAM, 0);
     struct sockaddr_un userv_addr;
     userv_addr.sun_family = AF_UNIX;
-    strcpy(userv_addr.sun_path, "plat1");
+    strcpy(userv_addr.sun_path, "plat3");
     bind(usfd, (struct sockaddr *)&userv_addr, sizeof(userv_addr));
     listen(usfd, 20);
 
@@ -119,7 +118,7 @@ int main()
         sleep(3);
         state->leaving=state->arrived;
         state->arrived=0;
-        state->platform_available[0]=0;
+        state->platform_available[0]=1;
         kill(X,SIGUSR1);
     }
 }

@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <stdlib.h>
 #include <signal.h>
 int send_fd(int socket, int fd_to_send)
 {
@@ -54,38 +55,49 @@ struct shmState
 struct shmState *state;
 void checkTrainLeaving(int sig)
 {
-    printf("Train %d is leaving \n",state->leaving);
+    printf("Train %d is leaving \n", state->leaving);
 }
 int main()
 {
     struct sigaction act;
     act.sa_handler = &checkTrainLeaving;
-    sigaction(SIGUSR1,&act,NULL);
+    act.sa_flags = SA_RESTART;
+    sigaction(SIGUSR1, &act, NULL);
 
-    key_t key = ftok("/shm", 100);
+    key_t key = ftok("/tmp", 100);
     perror("");
-    int shm_id = shmget(key, 4096, 0666);
-
+    int shm_id = shmget(key, 4096, 0666 | IPC_CREAT);
+    perror("");
     state = shmat(shm_id, NULL, 0);
-
     fd_set readfds;
     FD_ZERO(&readfds);
-    int train_fd[3];
-    for (int i = 0; i < 3; i++)
-    {
-        train_fd[i] = socket(AF_INET, SOCK_STREAM, 0);
-        struct sockaddr_in serv_addr;
-        serv_addr.sin_addr.s_addr = INADDR_ANY;
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_port = htons(8080 + i);
-        bind(train_fd[i], (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-        listen(train_fd[i], 1);
-        int *val = malloc(sizeof(int));
-        *val = 1;
-        setsockopt(train_fd[i], SOL_SOCKET, SO_REUSEADDR, val, sizeof(int));
-        setsockopt(train_fd[i], SOL_SOCKET, SO_REUSEPORT, val, sizeof(int));
-        FD_SET(train_fd[i], &readfds);
-    }
+    // int train_fd[3];
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     train_fd[i] = socket(AF_INET, SOCK_STREAM, 0);
+    //     struct sockaddr_in serv_addr;
+    //     serv_addr.sin_addr.s_addr = INADDR_ANY;
+    //     serv_addr.sin_family = AF_INET;
+    //     serv_addr.sin_port = htons(8080 + i);
+    //     bind(train_fd[i], (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    //     listen(train_fd[i], 1);
+    //     int *val = malloc(sizeof(int));
+    //     *val = 1;
+    //     setsockopt(train_fd[i], SOL_SOCKET, SO_REUSEADDR, val, sizeof(int));
+    //     setsockopt(train_fd[i], SOL_SOCKET, SO_REUSEPORT, val, sizeof(int));
+    //     FD_SET(train_fd[i], &readfds);
+    // }
+    int train_fd = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in serv_addr;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(8080);
+    int *val = malloc(sizeof(int));
+    *val = 1;
+    setsockopt(train_fd, SOL_SOCKET, SO_REUSEADDR, val, sizeof(int));
+    setsockopt(train_fd, SOL_SOCKET, SO_REUSEPORT, val, sizeof(int));
+    bind(train_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    listen(train_fd, 20);
 
     int usfd_platform[3];
     for (int i = 0; i < 3; i++)
@@ -94,44 +106,57 @@ int main()
         struct sockaddr_un serv_addr;
         serv_addr.sun_family = AF_UNIX;
         char platform_path[200];
-        sprintf("plat%d",i+1);
+        sprintf(platform_path, "plat%d", i + 1);
         strcpy(serv_addr.sun_path, platform_path);
         connect(usfd_platform[i], (struct sockaddr *)&serv_addr, sizeof(serv_addr));
     }
 
+    struct sockaddr client_addr;
+    socklen_t client_len;
+    int nsfd = accept(train_fd, &client_addr, &client_len);
+    perror("");
+    FD_SET(nsfd,&readfds);
+    int platform_available[3];
+    for (int i = 0; i < 3; i++)
+    {
+        platform_available[i] = 1;
+    }
+
     while (1)
     {
-        for (int i = 0; i < 3; i++)
+        int ready=select(1000,&readfds,NULL,NULL,NULL);
+        if (FD_ISSET(nsfd, &readfds))
         {
-            if (FD_ISSET(train_fd[i], &readfds))
+            printf("ASas\n");
+            int *train_no = malloc(sizeof(int));
+            for (int j = 0;; j = (j + 1) % 3)
             {
-                state->arrived = i + 1;
-                for (int i = 0; i < 3; i++)
+                if (platform_available[j] == 1)
                 {
-                    char cmd[200];
-                    sprintf("pidof ./p%d", i + 1);
-                    int fd = fileno(popen(cmd, "r"));
-                    char pid[100];
-                    read(fd, pid, 100);
-                    int X = atoi(pid);
-                    kill(X, SIGUSR1);
-                }
-
-                for (int j = 0; j < 3; j++)
-                {
-                    if (state->platform_available[j] == 1)
-                    {
-                        struct sockaddr client_addr;
-                        socklen_t client_len;
-                        int nsfd = accept(train_fd[i], &client_addr, &client_len);
-                        state->platform_available[j] = 0;
-                        // transfer nsfd to platform j
-                        send_fd(usfd_platform[j], nsfd);
-                    }
+                    recv(nsfd, train_no, sizeof(int), 0);
+                    printf("trainno %d\n", *train_no);
+                    platform_available[j] = 0;
+                    // transfer nsfd to platform j
+                    printf("%d\n", nsfd);
+                    send_fd(usfd_platform[j], nsfd);
+                    
+                    break;
                 }
             }
+            state->arrived = *train_no + 1;
+            for (int i = 0; i < 3; i++)
+            {
+                char cmd[200];
+                sprintf(cmd, "pidof ./p%d", i + 1);
+                int fd = fileno(popen(cmd, "r"));
+                char pid[100];
+                read(fd, pid, 100);
+                int X = atoi(pid);
+                printf("%d\n", X);
+                kill(X, SIGUSR1);
+            }
+            FD_ZERO(&readfds);
+            FD_SET(nsfd, &readfds);
         }
-        for (int i = 0; i < 3; i++)
-            FD_SET(train_fd[i], &readfds);
     }
 }

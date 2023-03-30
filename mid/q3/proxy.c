@@ -42,6 +42,7 @@ void *handleClientServer(void *arg)
 int main()
 {
     key_t key = ftok("/home/onio", 100);
+    perror("");
     msgid = msgget(key, 0666);
     msgctl(msgid, IPC_RMID, NULL);
     msgid = msgget(key, 0666|IPC_CREAT);
